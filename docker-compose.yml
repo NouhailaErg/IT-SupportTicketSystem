@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  oracle-db:
+    image: gvenzl/oracle-xe:latest
+    container_name: oracle-db
+    environment:
+      ORACLE_PASSWORD: sys200107
+      ORACLE_DATABASE: orcl
+    ports:
+      - "1521:1521"
+      - "5500:5500"
+    restart: unless-stopped
+
+  backend:
+    build: .
+    container_name: it-support-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/orcl
+      SPRING_DATASOURCE_USERNAME: sys
+      SPRING_DATASOURCE_PASSWORD: sys200107
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: oracle.jdbc.OracleDriver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.OracleDialect
+    ports:
+      - "8080:8080"
+    depends_on:
+      - oracle-db
+    restart: unless-stopped
